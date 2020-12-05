@@ -1,7 +1,7 @@
 /** @format */
 
 import { Switch, Route, Redirect } from 'react-router-dom';
-import AuthPage from './pages/AuthPage';
+import RegistrationPage from './pages/RegistrationPage';
 import SignInPage from './pages/SignInPage';
 import UserPage from './pages/UserPage';
 
@@ -20,7 +20,7 @@ export const Routes = (isAuthenticated) => {
   return (
     <Switch>
       <Route path="/" exact>
-        <AuthPage />
+        <RegistrationPage />
       </Route>
       <Route path="/signin">
         <SignInPage />

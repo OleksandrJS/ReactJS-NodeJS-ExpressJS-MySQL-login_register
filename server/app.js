@@ -6,7 +6,6 @@ const config = require('config');
 const cors = require('cors');
 
 const bcrypt = require('bcrypt');
-const saltRounds = 10;
 
 const app = express();
 app.use(express.json());
@@ -27,6 +26,12 @@ db.connect((error) => {
   }
 });
 
+if (process.env.NODE_ENV === 'production') {
+  app.use('/', express.static('views'));
+  app.use('/signin', express.static('views'));
+  app.use('/user', express.static('views'));
+}
+
 app.get('/countries', (req, res) => {
   db.query('SELECT * from countries', (err, results) => {
     res.send(results);
@@ -44,7 +49,7 @@ app.post('/auth/register', (req, res) => {
     birth_date,
   } = req.body;
 
-  bcrypt.hash(password, saltRounds, (err, hash) => {
+  bcrypt.hash(password, 10, (err, hash) => {
     if (err) {
       console.log(err);
     }
@@ -59,19 +64,41 @@ app.post('/auth/register', (req, res) => {
             res.send({ error: 'User with this email already exists' });
           } else {
             db.query(
-              'INSERT INTO users (email, login, password, username, birth_date, country, timestamp) VALUES(?,?,?,?,?,?,?)',
-              [email, login, hash, username, birth_date, country, timestamp],
-              (err, result) => {
+              'SELECT COUNT(*) AS cnt FROM users WHERE login =?',
+              login,
+              function (err, data) {
                 if (err) {
-                  console.log('error:', err);
-                }
-                if (result) {
-                  res.send({
-                    message:
-                      'You are registered please sign in to your account',
-                  });
+                  console.log(err);
                 } else {
-                  res.send({ message: 'Something went wrong' });
+                  if (data[0].cnt > 0) {
+                    res.send({ error: 'User with this login already exists' });
+                  } else {
+                    db.query(
+                      'INSERT INTO users (email, login, password, username, birth_date, country, timestamp) VALUES(?,?,?,?,?,?,?)',
+                      [
+                        email,
+                        login,
+                        hash,
+                        username,
+                        birth_date,
+                        country,
+                        timestamp,
+                      ],
+                      (err, result) => {
+                        if (err) {
+                          console.log('error:', err);
+                        }
+                        if (result) {
+                          res.send({
+                            message:
+                              'You are registered please sign in to your account',
+                          });
+                        } else {
+                          res.send({ message: 'Something went wrong' });
+                        }
+                      },
+                    );
+                  }
                 }
               },
             );
@@ -126,6 +153,6 @@ app.post('/auth/signin/login', (req, res) => {
 
 const PORT = config.get('port') || 5000;
 
-app.listen(PORT, () => {
+app.listen(process.env.PORT || PORT, () => {
   console.log(`App has been started at http://localhost:${PORT}`);
 });

@@ -1,3 +1,4 @@
 [1202/172849.723:ERROR:directory_reader_win.cc(43)] FindFirstFile: Системе не удается найти указанный путь. (0x3)
 [1204/233009.655:ERROR:directory_reader_win.cc(43)] FindFirstFile: Системе не удается найти указанный путь. (0x3)
 [1205/035345.295:ERROR:filesystem_win.cc(129)] GetFileAttributes C:\Users\Zeppelin\AppData\Local\Google\Chrome\User Data\Crashpad\attachments\951ff5bd-7612-4836-8835-1e51e737f0d8: Системе не удается найти указанный путь. (0x3)
+[1205/142902.491:ERROR:directory_reader_win.cc(43)] FindFirstFile: Системе не удается найти указанный путь. (0x3)

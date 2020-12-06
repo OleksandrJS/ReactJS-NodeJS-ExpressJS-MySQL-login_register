@@ -24,8 +24,6 @@ const RegistrationPage = () => {
     success: '',
   });
 
-  const [dayOfTheBirth, setDayOfTheBirth] = useState('');
-
   const handleChangeRegForm = (e) =>
     setFormReg({
       ...formReg,
@@ -65,7 +63,7 @@ const RegistrationPage = () => {
       password,
       username,
       country,
-      dayOfTheBirth,
+      birthDate,
       checked,
     };
 
@@ -80,7 +78,7 @@ const RegistrationPage = () => {
           username: formReg.username,
           country: formReg.country,
           timestamp: currentTime,
-          birth_date: dayOfTheBirth,
+          birth_date: birthDate,
         })
         .then((response) => {
           registrationMessage(
@@ -109,7 +107,6 @@ const RegistrationPage = () => {
         handleCheck={handleCheck}
         handlerRegistration={handlerRegistration}
         regMessage={regMessage}
-        setDayOfTheBirth={setDayOfTheBirth}
       />
     </>
   );

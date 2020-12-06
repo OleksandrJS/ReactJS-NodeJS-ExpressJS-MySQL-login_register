@@ -14,7 +14,6 @@ const RegForm = ({
   setBirthDate,
   handlerRegistration,
   regMessage: { error, success },
-  setDayOfTheBirth,
 }) => {
   const [countries, setCountries] = useState(null);
 
@@ -25,6 +24,8 @@ const RegForm = ({
     };
     fetchData();
   }, []);
+
+  const handleSelectClick = (e) => (e.target.className = 'select-active');
 
   return (
     <>
@@ -59,8 +60,12 @@ const RegForm = ({
           value={username}
           placeholder="name"
         />
-        <select onChange={handleChange} name="country">
-          <option value="0" disabled selected>
+        <select
+          onChange={handleChange}
+          onClick={handleSelectClick}
+          defaultValue=""
+          name="country">
+          <option hidden value="">
             Select your Country
           </option>
           {countries !== null &&
@@ -72,16 +77,7 @@ const RegForm = ({
         </select>
         <DatePicker
           selected={birthDate}
-          onChange={(date) => {
-            let newDate =
-              date.getDate() +
-              '-' +
-              (+date.getMonth() + 1) +
-              '-' +
-              date.getFullYear();
-            setBirthDate(date);
-            setDayOfTheBirth(newDate);
-          }}
+          onChange={(date) => setBirthDate(date)}
           placeholderText="Select you birth date"
           maxDate={new Date()}
           dateFormat="dd/MM/yyyy"
@@ -96,9 +92,7 @@ const RegForm = ({
             checked={checked}
             style={{ cursor: 'pointer' }}
           />
-          <p style={{ cursor: 'pointer' }} onClick={handleCheck}>
-            agree with terms and conditions
-          </p>
+          <p onClick={handleCheck}>agree with terms and conditions</p>
         </div>
         <button className="btn" type="submit">
           Sign up

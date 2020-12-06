@@ -8,6 +8,9 @@ export const regSchema = yup.object().shape({
   password: yup.string().required(),
   username: yup.string().required(),
   country: yup.string().required(),
-  dayOfTheBirth: yup.string().required(),
+  dayOfTheBirth: yup
+    .date()
+    .default(() => new Date())
+    .required(),
   checked: yup.bool().oneOf([true], 'Field must be checked').required(),
 });

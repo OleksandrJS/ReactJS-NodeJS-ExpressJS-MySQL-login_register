@@ -34,5 +34,5 @@ if (process.env.NODE_ENV === 'production') {
 const PORT = config.get('port') || 5000;
 
 app.listen(process.env.PORT || PORT, () => {
-  console.log(`App has been started at http://localhost:${PORT}`);
+  console.log(`App has been started at port: ${PORT}`);
 });

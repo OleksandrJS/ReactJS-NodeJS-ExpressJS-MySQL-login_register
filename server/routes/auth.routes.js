@@ -88,11 +88,11 @@ router.post('/signin/email', (req, res) => {
         if (response) {
           res.send(result);
         } else {
-          res.send({ message: 'Wrong email' });
+          res.send({ message: 'Wrong password' });
         }
       });
     } else {
-      res.send({ message: "User doesn't exist" });
+      res.send({ message: 'Wrong email' });
     }
   });
 });
@@ -109,11 +109,11 @@ router.post('/signin/login', (req, res) => {
         if (response) {
           res.send(result);
         } else {
-          res.send({ message: 'Wrong login' });
+          res.send({ message: 'Wrong password' });
         }
       });
     } else {
-      res.send({ message: "User doesn't exist" });
+      res.send({ message: 'Wrong login' });
     }
   });
 });

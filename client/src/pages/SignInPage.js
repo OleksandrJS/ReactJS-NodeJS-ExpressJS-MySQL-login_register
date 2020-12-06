@@ -52,12 +52,13 @@ const SignInPage = () => {
               })
               .then((res) => {
                 console.log(res);
-                setSignInMessage(res.data.message);
-                timeout();
                 if (res.data.length !== 0 && !res.data.message) {
                   const data = res.data['0'];
                   const { username, email } = data;
                   login(username, email);
+                } else {
+                  setSignInMessage(res.data.message);
+                  timeout();
                 }
               });
           }

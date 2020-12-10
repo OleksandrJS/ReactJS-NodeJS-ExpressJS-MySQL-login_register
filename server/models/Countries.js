@@ -22,5 +22,5 @@ module.exports = (sequelize, DataTypes) => {
       modelName: 'Countries',
     },
   );
-  return User;
+  return Countries;
 };

@@ -47,7 +47,6 @@ router.post('/register', async (req, res) => {
 
 router.post('/signin', async (req, res) => {
   const { email, password } = req.body;
-  console.log('req.body:', req.body);
 
   const checkEmail = await User.findOne({ where: { email: email } });
   const checkLogin = await User.findOne({ where: { login: email } });
@@ -60,6 +59,7 @@ router.post('/signin', async (req, res) => {
       : '';
 
   const isMatch = await bcrypt.compare(password, userPassword);
+
   if (!checkEmail && !checkLogin) {
     res.send({ message: "User with this email or login doesn't exist" });
   } else if (!isMatch) {

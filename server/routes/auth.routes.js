@@ -2,10 +2,10 @@
 
 const { Router } = require('express');
 const router = Router();
+const { User } = require('../models');
 const bcrypt = require('bcrypt');
-const db = require('../db');
 
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
   const {
     username,
     email,
@@ -16,106 +16,58 @@ router.post('/register', (req, res) => {
     birth_date,
   } = req.body;
 
-  bcrypt.hash(password, 10, (err, hash) => {
-    if (err) {
-      console.log(err);
-    }
-    db.query(
-      'SELECT COUNT(*) AS cnt FROM users WHERE email =?',
+  const checkEmail = await User.findOne({ where: { email: email } });
+  const checkLogin = await User.findOne({ where: { login: login } });
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  if (checkEmail) {
+    res.send({ error: 'User with this email already exists' });
+  } else if (checkLogin) {
+    res.send({ error: 'User with this login already exists' });
+  } else {
+    User.create({
+      username,
       email,
-      function (err, data) {
-        if (err) {
-          console.log(err);
-        } else {
-          if (data[0].cnt > 0) {
-            res.send({ error: 'User with this email already exists' });
-          } else {
-            db.query(
-              'SELECT COUNT(*) AS cnt FROM users WHERE login =?',
-              login,
-              function (err, data) {
-                if (err) {
-                  console.log(err);
-                } else {
-                  if (data[0].cnt > 0) {
-                    res.send({ error: 'User with this login already exists' });
-                  } else {
-                    db.query(
-                      'INSERT INTO users (email, login, password, username, birth_date, country, timestamp) VALUES(?,?,?,?,?,?,?)',
-                      [
-                        email,
-                        login,
-                        hash,
-                        username,
-                        birth_date,
-                        country,
-                        timestamp,
-                      ],
-                      (err, result) => {
-                        if (err) {
-                          console.log('error:', err);
-                        }
-                        if (result) {
-                          res.send({
-                            message:
-                              'You are registered please sign in to your account',
-                          });
-                        } else {
-                          res.send({ message: 'Something went wrong' });
-                        }
-                      },
-                    );
-                  }
-                }
-              },
-            );
-          }
-        }
-      },
-    );
-  });
+      login,
+      password: hashedPassword,
+      country,
+      timestamp,
+      birth_date,
+    }).then((users) => {
+      if (users) {
+        res.send({
+          message: 'You are registered please sign in to your account',
+        });
+      } else {
+        res.send({ message: 'Something went wrong' });
+      }
+    });
+  }
 });
 
-router.post('/signin/email', (req, res) => {
+router.post('/signin', async (req, res) => {
   const { email, password } = req.body;
+  console.log('req.body:', req.body);
 
-  db.query('SELECT * from users WHERE email=?', email, (err, result) => {
-    if (err) {
-      res.send({ err: err });
-    }
-    if (result.length > 0) {
-      bcrypt.compare(password, result[0].password, (err, response) => {
-        if (response) {
-          res.send(result);
-        } else {
-          res.send({ message: 'Wrong password' });
-        }
-      });
-    } else {
-      res.send({ message: 'Wrong email' });
-    }
-  });
-});
+  const checkEmail = await User.findOne({ where: { email: email } });
+  const checkLogin = await User.findOne({ where: { login: email } });
 
-router.post('/signin/login', (req, res) => {
-  const { login, password } = req.body;
+  const userPassword =
+    checkEmail !== null
+      ? checkEmail.dataValues.password
+      : checkLogin !== null
+      ? checkLogin.dataValues.password
+      : '';
 
-  db.query('SELECT * from users WHERE login=?', login, (err, result) => {
-    if (err) {
-      res.send({ err: err });
-    }
-    if (result.length > 0) {
-      bcrypt.compare(password, result[0].password, (err, response) => {
-        if (response) {
-          res.send(result);
-        } else {
-          res.send({ message: 'Wrong password' });
-        }
-      });
-    } else {
-      res.send({ message: 'Wrong login' });
-    }
-  });
+  const isMatch = await bcrypt.compare(password, userPassword);
+  if (!checkEmail && !checkLogin) {
+    res.send({ message: "User with this email or login doesn't exist" });
+  } else if (!isMatch) {
+    res.send({ message: 'Wrong password' });
+  } else {
+    const user = await User.findOne({ where: { password: userPassword } });
+    res.send(user);
+  }
 });
 
 module.exports = router;

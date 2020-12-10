@@ -1,26 +1,19 @@
 /** @format */
 
 const express = require('express');
-const db = require('./db');
 const config = require('config');
 const cors = require('cors');
+const { sequelize, Countries } = require('./models');
+
+const PORT = config.port || 5000;
 
 const app = express();
 app.use(express.json({ extended: true }));
 app.use(cors());
 
-db.connect((error) => {
-  if (error) {
-    console.log(error);
-  } else {
-    console.log('MySQL connected...');
-  }
-});
-
-app.get('/countries', (req, res) => {
-  db.query('SELECT * from countries', (err, results) => {
-    res.send(results);
-  });
+app.get('/countries', async (req, res) => {
+  const countries = await Countries.findAll({ raw: true });
+  res.send(countries);
 });
 
 app.use('/auth', require('./routes/auth.routes'));
@@ -31,8 +24,12 @@ if (process.env.NODE_ENV === 'production') {
   app.use('/user', express.static('views'));
 }
 
-const PORT = config.get('port') || 5000;
-
-app.listen(process.env.PORT || PORT, () => {
-  console.log(`App has been started at port: ${PORT}`);
-});
+sequelize
+  .sync()
+  .then((req) => {
+    console.log('MySQL connected...');
+    app.listen(process.env.PORT || PORT, () => {
+      console.log(`App has been started at port: ${PORT}`);
+    });
+  })
+  .catch((err) => console.log(err));

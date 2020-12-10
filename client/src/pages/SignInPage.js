@@ -38,34 +38,17 @@ const SignInPage = () => {
 
     if (isValid) {
       axios
-        .post('http://localhost:5000/auth/signin/email', {
-          email: formLogin.emailOrLogin,
-          password: formLogin.password,
+        .post('http://localhost:5000/auth/signin', {
+          email: emailOrLogin,
+          password: password,
         })
         .then((response) => {
-          console.log(response);
-          if (response.data.length === 0 || response.data.message) {
-            axios
-              .post('http://localhost:5000/auth/signin/login', {
-                login: formLogin.emailOrLogin,
-                password: formLogin.password,
-              })
-              .then((res) => {
-                console.log(res);
-                if (res.data.length !== 0 && !res.data.message) {
-                  const data = res.data['0'];
-                  const { username, email } = data;
-                  login(username, email);
-                } else {
-                  setSignInMessage(res.data.message);
-                  timeout();
-                }
-              });
-          }
           if (!response.data.message) {
-            const data = response.data['0'];
-            const { username, email } = data;
+            const { username, email } = response.data;
             login(username, email);
+          } else {
+            setSignInMessage(response.data.message);
+            timeout();
           }
         });
     } else {

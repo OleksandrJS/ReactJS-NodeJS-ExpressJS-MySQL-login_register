@@ -27,6 +27,8 @@ const RegForm = ({
 
   const handleSelectClick = (e) => (e.target.className = 'select-active');
 
+  const date = new Date();
+
   return (
     <>
       <form onSubmit={handlerRegistration} className="reg_form">
@@ -79,7 +81,7 @@ const RegForm = ({
           selected={birthDate}
           onChange={(date) => setBirthDate(date)}
           placeholderText="Select you birth date"
-          maxDate={new Date()}
+          maxDate={date.setFullYear(date.getFullYear() - 10)}
           dateFormat="dd/MM/yyyy"
           showYearDropdown
           yearDropdownItemNumber={40}

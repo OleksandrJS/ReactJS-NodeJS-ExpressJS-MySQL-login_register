@@ -12,5 +12,5 @@ export const regSchema = yup.object().shape({
     .date()
     .default(() => new Date())
     .required(),
-  checked: yup.bool().oneOf([true], 'Field must be checked').required(),
+  checked: yup.bool().oneOf([true]).required(),
 });

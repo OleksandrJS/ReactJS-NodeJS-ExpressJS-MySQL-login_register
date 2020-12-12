@@ -19,7 +19,9 @@ const RegForm = ({
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data } = await axios('http://localhost:5000/countries');
+      const { data } = await axios(
+        'https://login-mysql-app.herokuapp.com/countries',
+      );
       setCountries(data.map((item) => item.country));
     };
     fetchData();

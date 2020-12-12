@@ -71,7 +71,7 @@ const RegistrationPage = () => {
 
     if (isValid && email !== login) {
       axios
-        .post('https://login-mysql-app.herokuapp.com/auth/register', {
+        .post('http://localhost:5000/auth/register', {
           email: email,
           login: login,
           password: password,

@@ -38,7 +38,7 @@ const SignInPage = () => {
 
     if (isValid) {
       axios
-        .post('https://login-mysql-app.herokuapp.com/auth/signin', {
+        .post('http://localhost:5000/auth/signin', {
           email: emailOrLogin,
           password: password,
         })

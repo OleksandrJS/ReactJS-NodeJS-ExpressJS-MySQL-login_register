@@ -39,7 +39,7 @@ router.post('/register', async (req, res) => {
           message: 'You are registered please sign in to your account',
         });
       } else {
-        res.send({ message: 'Something went wrong' });
+        res.send({ error: 'Something went wrong' });
       }
     });
   }

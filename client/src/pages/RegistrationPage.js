@@ -72,11 +72,11 @@ const RegistrationPage = () => {
     if (isValid && email !== login) {
       axios
         .post('http://localhost:5000/auth/register', {
-          email: formReg.email,
-          login: formReg.login,
-          password: formReg.password,
-          username: formReg.username,
-          country: formReg.country,
+          email: email,
+          login: login,
+          password: password,
+          username: username,
+          country: country,
           timestamp: currentTime,
           birth_date: birthDate,
         })

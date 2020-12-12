@@ -1,0 +1,22 @@
+{
+  "development": {
+    "host": "localhost",
+    "username": "root",
+    "database": "usersdb",
+    "password": "password",
+    "dialect": "mysql",
+    "define": {
+      "timestamps": false
+    }
+  },
+  "production": {
+    "host": "eu-cdbr-west-03.cleardb.net",
+    "username": "b0dd99d02c0603",
+    "database": "heroku_4be7dbebc4d87f9",
+    "password": "0237a339",
+    "dialect": "mysql",
+    "define": {
+      "timestamps": false
+    }
+  }
+}

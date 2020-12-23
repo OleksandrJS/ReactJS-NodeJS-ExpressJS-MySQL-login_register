@@ -1,12 +1,15 @@
 /** @format */
 
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import axios from 'axios';
 import RegForm from '../components/RegForm';
+import { AuthContext } from '../App';
 import { AuthLinks } from '../components/AuthLinks';
 import { regSchema } from '../Validators/regValidation';
 
 const RegistrationPage = () => {
+  const auth = useContext(AuthContext);
+
   const [formReg, setFormReg] = useState({
     email: '',
     login: '',
@@ -19,10 +22,7 @@ const RegistrationPage = () => {
 
   const [checked, setChecked] = useState(false);
 
-  const [regMessage, setRegMessage] = useState({
-    error: '',
-    success: '',
-  });
+  const [regMessage, setRegMessage] = useState('');
 
   const handleChangeRegForm = (e) =>
     setFormReg({
@@ -34,21 +34,10 @@ const RegistrationPage = () => {
 
   const currentTime = +new Date();
 
-  const timeout = () =>
-    setTimeout(
-      () =>
-        setRegMessage({
-          error: '',
-          success: '',
-        }),
-      5000,
-    );
+  const timeout = () => setTimeout(() => setRegMessage(''), 5000);
 
-  const registrationMessage = (error, success) => {
-    setRegMessage({
-      error: error,
-      success: success,
-    });
+  const registrationMessage = (error) => {
+    setRegMessage(error);
     timeout();
   };
 
@@ -70,27 +59,31 @@ const RegistrationPage = () => {
     const isValid = await regSchema.isValid(formData);
 
     if (isValid && email !== login) {
-      axios
-        .post('http://localhost:5000/auth/register', {
-          email: email,
-          login: login,
-          password: password,
-          username: username,
-          country: country,
-          timestamp: currentTime,
-          birth_date: birthDate,
-        })
-        .then((response) => {
-          registrationMessage(
-            response.data.error || '',
-            response.data.message || '',
-          );
-        });
+      try {
+        const { data } = await axios.post(
+          'http://localhost:5000/auth/register',
+          {
+            email: email,
+            login: login,
+            password: password,
+            username: username,
+            country: country,
+            timestamp: currentTime,
+            birth_date: birthDate,
+          },
+        );
+
+        const { username: name, email: mail, jwtToken } = data;
+
+        auth.login(name, mail, jwtToken);
+      } catch (e) {
+        registrationMessage(e.response.data.message);
+      }
     } else {
       if (email === login && login !== '' && email !== '') {
-        registrationMessage('Email and login must be unique', '');
+        registrationMessage('Email and login must be unique');
       } else {
-        registrationMessage('All fields must be filled', '');
+        registrationMessage('All fields must be filled');
       }
     }
   };

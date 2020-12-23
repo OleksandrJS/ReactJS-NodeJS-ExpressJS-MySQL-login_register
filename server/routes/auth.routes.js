@@ -2,30 +2,42 @@
 
 const { Router } = require('express');
 const router = Router();
+const config = require('config');
+const jwt = require('jsonwebtoken');
 const { User } = require('../models');
 const bcrypt = require('bcrypt');
 
 router.post('/register', async (req, res) => {
-  const {
-    username,
-    email,
-    login,
-    password,
-    country,
-    timestamp,
-    birth_date,
-  } = req.body;
+  try {
+    const {
+      username,
+      email,
+      login,
+      password,
+      country,
+      timestamp,
+      birth_date,
+    } = req.body;
 
-  const checkEmail = await User.findOne({ where: { email: email } });
-  const checkLogin = await User.findOne({ where: { login: login } });
-  const hashedPassword = await bcrypt.hash(password, 10);
+    const checkEmail = await User.findOne({ where: { email: email } });
 
-  if (checkEmail) {
-    res.send({ error: 'User with this email already exists' });
-  } else if (checkLogin) {
-    res.send({ error: 'User with this login already exists' });
-  } else {
-    User.create({
+    if (checkEmail) {
+      return res
+        .status(400)
+        .json({ message: 'User with this email already exists' });
+    }
+
+    const checkLogin = await User.findOne({ where: { login: login } });
+
+    if (checkLogin) {
+      return res
+        .status(400)
+        .json({ message: 'User with this login already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
       username,
       email,
       login,
@@ -33,40 +45,57 @@ router.post('/register', async (req, res) => {
       country,
       timestamp,
       birth_date,
-    }).then((users) => {
-      if (users) {
-        res.send({
-          message: 'You are registered please sign in to your account',
-        });
-      } else {
-        res.send({ error: 'Something went wrong' });
-      }
     });
+
+    const token = jwt.sign({ userId: user.id }, config.jwtSecret, {
+      expiresIn: '7d',
+    });
+
+    user.dataValues.jwtToken = token;
+
+    res.status(200).json(user);
+  } catch (e) {
+    res.status(500).send({ message: 'Something went wrong' });
   }
 });
 
 router.post('/signin', async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { emailOrLogin, password } = req.body;
 
-  const checkEmail = await User.findOne({ where: { email: email } });
-  const checkLogin = await User.findOne({ where: { login: email } });
+    const checkEmail = await User.findOne({ where: { email: emailOrLogin } });
 
-  const userPassword =
-    checkEmail !== null
-      ? checkEmail.dataValues.password
-      : checkLogin !== null
-      ? checkLogin.dataValues.password
+    const checkLogin = await User.findOne({ where: { login: emailOrLogin } });
+
+    if (!checkEmail && !checkLogin) {
+      return res
+        .status(400)
+        .json({ message: "User with this email or login doesn't exist" });
+    }
+
+    const userPassword = checkEmail
+      ? checkEmail.password
+      : checkLogin
+      ? checkLogin.password
       : '';
 
-  const isMatch = await bcrypt.compare(password, userPassword);
+    const isMatch = await bcrypt.compare(password, userPassword);
 
-  if (!checkEmail && !checkLogin) {
-    res.send({ message: "User with this email or login doesn't exist" });
-  } else if (!isMatch) {
-    res.send({ message: 'Wrong password' });
-  } else {
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Wrong password' });
+    }
+
     const user = await User.findOne({ where: { password: userPassword } });
-    res.send(user);
+
+    const token = jwt.sign({ userId: user.id }, config.jwtSecret, {
+      expiresIn: '7d',
+    });
+
+    user.dataValues.jwtToken = token;
+
+    res.status(200).json(user);
+  } catch (e) {
+    res.status(500).json({ error: 'Something went wrong' });
   }
 });
 

@@ -26,7 +26,7 @@ if (process.env.NODE_ENV === 'production') {
 
 sequelize
   .sync()
-  .then((req) => {
+  .then(() => {
     console.log('MySQL connected...');
     app.listen(process.env.PORT || PORT, () => {
       console.log(`App has been started at port: ${PORT}`);

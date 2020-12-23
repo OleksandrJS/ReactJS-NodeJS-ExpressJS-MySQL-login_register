@@ -37,20 +37,22 @@ const SignInPage = () => {
     const isValid = await signinSchema.isValid(formData);
 
     if (isValid) {
-      axios
-        .post('http://localhost:5000/auth/signin', {
-          email: emailOrLogin,
-          password: password,
-        })
-        .then((response) => {
-          if (!response.data.message) {
-            const { username, email } = response.data;
-            login(username, email);
-          } else {
-            setSignInMessage(response.data.message);
-            timeout();
-          }
+      try {
+        const { data } = await axios.post('http://localhost:5000/auth/signin', {
+          emailOrLogin,
+          password,
         });
+
+        console.log(data);
+
+        const { username, email, jwtToken } = data;
+
+        login(username, email, jwtToken);
+      } catch (e) {
+        console.log(e);
+        setSignInMessage(e.response.data.message);
+        timeout();
+      }
     } else {
       setSignInMessage('All fields must be filled');
       timeout();

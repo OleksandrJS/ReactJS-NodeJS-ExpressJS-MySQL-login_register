@@ -8,7 +8,8 @@ import { Routes } from './routes';
 export const AuthContext = createContext();
 
 function App() {
-  const { login, logout, username, userEmail, isAuthenticated } = useAuth();
+  const { login, logout, username, userEmail, token } = useAuth();
+  const isAuthenticated = !!token;
   const routes = Routes(isAuthenticated);
 
   return (

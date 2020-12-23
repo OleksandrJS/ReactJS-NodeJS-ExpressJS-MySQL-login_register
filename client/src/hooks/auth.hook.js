@@ -7,10 +7,10 @@ const storageName = 'userdata';
 export const useAuth = () => {
   const [username, setUserName] = useState(null);
   const [userEmail, setUserEmail] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [token, setToken] = useState(false);
 
-  const login = useCallback((name, email) => {
-    setIsAuthenticated(true);
+  const login = useCallback((name, email, jwtToken) => {
+    setToken(jwtToken);
     setUserName(name);
     setUserEmail(email);
 
@@ -19,13 +19,13 @@ export const useAuth = () => {
       JSON.stringify({
         username: name,
         userEmail: email,
-        isAuthenticated: true,
+        token: jwtToken,
       }),
     );
   }, []);
 
   const logout = useCallback(() => {
-    setIsAuthenticated(false);
+    setToken(false);
     setUserName(null);
     setUserEmail(null);
     localStorage.removeItem(storageName);
@@ -33,12 +33,13 @@ export const useAuth = () => {
 
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem(storageName));
-    if (data) {
-      setIsAuthenticated(data.isAuthenticated);
-      setUserName(data.username);
-      setUserEmail(data.userEmail);
+    if (data && data.token) {
+      login(data.username, data.userEmail, data.token);
+      // setToken(data.token);
+      // setUserName(data.username);
+      // setUserEmail(data.userEmail);
     }
   }, [login]);
 
-  return { login, logout, isAuthenticated, username, userEmail };
+  return { login, logout, token, username, userEmail };
 };

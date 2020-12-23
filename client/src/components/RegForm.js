@@ -13,7 +13,7 @@ const RegForm = ({
   birthDate,
   setBirthDate,
   handlerRegistration,
-  regMessage: { error, success },
+  regMessage,
 }) => {
   const [countries, setCountries] = useState(null);
 
@@ -100,8 +100,7 @@ const RegForm = ({
           Sign up
         </button>
       </form>
-      <p className="Error">{error}</p>
-      <p className="Success">{success}</p>
+      <p className="Error">{regMessage}</p>
     </>
   );
 };
